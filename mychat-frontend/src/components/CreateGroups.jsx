@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -16,49 +17,64 @@ import { useNavigate } from "react-router-dom";
 function CreateGroups() {
   const lightTheme = useSelector((state) => state.themeKey);
   const userData = JSON.parse(localStorage.getItem("userdata"));
-  // console.log("Data from LocalStorage : ", userData);
   const nav = useNavigate();
+  
+  // State for group name and snackbar
+  const [groupName, setGroupName] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Redirect to login if user not authenticated
   if (!userData) {
     console.log("User not Authenticated");
     nav("/");
   }
+  
   const user = userData;
-  const [groupName, setGroupName] = useState("");
-  const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
-    setOpen(true);
+    setOpenDialog(true);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenDialog(false);
   };
 
-  console.log("User Data from CreateGroups : ", userData);
-
-  const createGroup = () => {
+  // Function to create group
+  const createGroup = async () => {
     const config = {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
     };
 
-    axios.post(
-      "http://localhost:5000/chat/createGroup",
-      {
-        name: groupName,
-        users: '["647d94aea97e40a17278c7e5","647d999e4c3dd7ca9a2e6543"]',
-      },
-      config
-    );
-    nav("/app/groups");
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/chat/createGroup",
+        {
+          name: groupName,
+          users: ["647d94aea97e40a17278c7e5", "647d999e4c3dd7ca9a2e6543"], // Example users array
+        },
+        config
+      );
+
+      // Show snackbar on successful creation
+      setSnackbarMessage("Group created successfully");
+      setSnackbarOpen(true);
+
+      // Navigate to groups page
+      nav("/app/groups");
+    } catch (error) {
+      console.error("Error creating group:", error);
+    }
   };
 
   return (
     <>
       <div>
         <Dialog
-          open={open}
+          open={openDialog}
           onClose={handleClose}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -69,7 +85,7 @@ function CreateGroups() {
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               This will create a create group in which you will be the admin and
-              other will be able to join this group.
+              others will be able to join this group.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -96,14 +112,24 @@ function CreateGroups() {
         />
         <IconButton
           className={"icon" + (lightTheme ? "" : " dark")}
-          onClick={() => {
-            handleClickOpen();
-            // createGroup();
-          }}
+          onClick={handleClickOpen}
         >
           <DoneOutlineRoundedIcon />
         </IconButton>
       </div>
+      {/* Snackbar component for notification */}
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={snackbarOpen}
+        autoHideDuration={6000} // Adjust duration as needed
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+        action={
+          <Button color="secondary" size="small" onClick={() => setSnackbarOpen(false)}>
+            Close
+          </Button>
+        }
+      />
     </>
   );
 }

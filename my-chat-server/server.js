@@ -83,17 +83,20 @@ io.on("connection", (socket) => {
 
     socket.on("new message", (newMessageReceived) => {
         var chat = newMessageReceived.chat;
-
-        if (!chat.users) {
-            return console.log("chat.users not defined");
+    
+        // Check if chat and chat.users are defined and chat.users is an array
+        if (!chat || !chat.users || !Array.isArray(chat.users)) {
+            console.log("Invalid chat or chat.users structure:", newMessageReceived);
+            return;
         }
-
+    
         chat.users.forEach((user) => {
             if (user._id === newMessageReceived.sender._id) return;
-
+    
             socket.in(user._id).emit("message received", newMessageReceived);
         });
     });
+    
 
     socket.on("disconnect", () => {
         console.log("Client disconnected");

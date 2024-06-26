@@ -9,10 +9,14 @@ const allMessages = expressAsyncHandler(async (req, res) => {
       .populate("sender", "name email")
       .populate("receiver")
       .populate("chat");
-    res.json(messages);
+    
+    if (!messages) {
+      return res.status(404).send({ message: "Messages not found for this chat" });
+    }
+
+    res.status(200).json(messages);
   } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    res.status(500).send({ message: "Server error", error: error.message });
   }
 });
 
@@ -25,8 +29,7 @@ const sendMessage = expressAsyncHandler(async (req, res) => {
   }
 
   if (!content && !mediaPath) {
-    console.log("Invalid data passed into request");
-    return res.sendStatus(400);
+    return res.status(400).send({ message: "Content or media is required" });
   }
 
   var newMessage = {
@@ -48,10 +51,10 @@ const sendMessage = expressAsyncHandler(async (req, res) => {
     });
 
     await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
-    res.json(message);
+
+    res.status(200).json({ message: "Message sent successfully", message });
   } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    res.status(500).send({ message: "Server error", error: error.message });
   }
 });
 

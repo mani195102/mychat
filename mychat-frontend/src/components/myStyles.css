@@ -12,6 +12,7 @@
     width:90vw;
     border-radius:5px;
     display: flex;
+    flex-direction: row-reverse;
 }
 .icon{
     width:1em !important;
@@ -69,9 +70,17 @@ body button:focus, body button:focus-visible {
     grid-template-columns: 38px auto auto;
     grid-template-rows: auto auto;
     column-gap: 10px;
-    padding: 5px;
+    padding: 8px 5px;
     margin:5px;
 }
+.sidebar-container .conversation-container{
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border-bottom: 3px solid;  
+    border-radius:10px;
+}
+.con-icon.dark {
+    background-color: green !important;
+}   
 .con-icon{
     grid-area: 1/1/3/2;
     display: flex;
@@ -83,14 +92,15 @@ body button:focus, body button:focus-visible {
     height:32px;
     line-height: 33px;
     border-radius:50%;
-    background-color: #d9d9d9;
+    background-color:#00000082;
     color:#fff;
     padding: 2px;
 }
 .con-title{
     grid-area: 1/2/2/4;
     font-weight: bold;
-    color:#808080;
+    text-transform: capitalize;
+    color: #000;
 }
 .con-timeStamp{
     text-align: end;
@@ -104,13 +114,17 @@ body button:focus, body button:focus-visible {
 .other-text-content .con-lastMessage{
     font-size: 1em;
     color:#000;
-
+}
+.other-text-content.dark {
+    border-bottom: 3px solid;
+    border-top: 3px solid;
 }
 .other-text-content{
     display: flex;
     flex-direction: column;
     width: max-content;
     background-color: #e8e8e8;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     color: #000;
     padding: 10px;
     border-start-start-radius: 10px;
@@ -193,8 +207,8 @@ body button:focus, body button:focus-visible {
     display: flex;
     flex-direction: column;
     width: max-content;
-    background-color: darkseagreen;
-    color: #000;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    background-image: linear-gradient(to top, #9be15d 0%, #00e3ae 100%);    color: #000;
     padding: 10px;
     border-start-end-radius: 20px;
     border-end-start-radius: 10px;
@@ -354,7 +368,7 @@ span.hyper {
         flex: 1;
     }
     .other-icons {
-        flex-direction: column;
+        flex-direction: row;
         display: flex;
     }
     .chatArea-container,.login-box,.image-container {
@@ -377,9 +391,10 @@ span.hyper {
 
     /* main-container */
     .main-container{
-        height:120vh;
-        width:120vw;
+        height:100%;
+        width:100vw;
         border-radius: unset;
+        flex-direction: column;
     }
     
     

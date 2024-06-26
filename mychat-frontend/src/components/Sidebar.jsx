@@ -8,9 +8,9 @@ import {
   ExitToApp as ExitToAppIcon,
   AddCircle as AddCircleIcon,
   Search as SearchIcon,
-  Lock as LockIcon, // Import LockIcon for private chat
+  Lock as LockIcon,
 } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { IconButton, Snackbar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
@@ -24,6 +24,7 @@ function Sidebar() {
   const { refresh, setRefresh } = useContext(myContext);
   const [conversations, setConversations] = useState([]);
   const userData = JSON.parse(localStorage.getItem("userdata"));
+  const [newMessagesSnackbarOpen, setNewMessagesSnackbarOpen] = useState(false);
 
   useEffect(() => {
     if (!userData) {
@@ -37,9 +38,17 @@ function Sidebar() {
       },
     };
 
-    axios.get("http://localhost:5000/chat/", config)
+    axios
+      .get("http://localhost:5000/chat/", config)
       .then((response) => {
         setConversations(response.data);
+        // Check if there are new messages since last fetch
+        const hasNewMessages = response.data.some(
+          (conversation) => conversation.hasNewMessages
+        );
+        if (hasNewMessages) {
+          setNewMessagesSnackbarOpen(true);
+        }
       })
       .catch((error) => {
         console.error("Error fetching conversations:", error);
@@ -49,6 +58,10 @@ function Sidebar() {
   const handleLogout = () => {
     localStorage.removeItem("userdata");
     navigate("/");
+  };
+
+  const handleCloseSnackbar = () => {
+    setNewMessagesSnackbarOpen(false);
   };
 
   return (
@@ -68,7 +81,7 @@ function Sidebar() {
             <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
           </IconButton>
           <IconButton onClick={() => navigate("private-chat")}>
-            <LockIcon className={"icon" + (lightTheme ? "" : " dark")} /> {/* Add Private Chat Icon */}
+            <LockIcon className={"icon" + (lightTheme ? "" : " dark")} />
           </IconButton>
           <IconButton onClick={() => dispatch(toggleTheme())}>
             {lightTheme ? (
@@ -93,7 +106,7 @@ function Sidebar() {
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {conversations.map((conversation, index) => {
-          let chatName = '';
+          let chatName = "";
           if (conversation.isGroupChat) {
             chatName = conversation.chatName;
           } else {
@@ -104,7 +117,9 @@ function Sidebar() {
             });
           }
 
-          const latestMessageContent = conversation.latestMessage?.content || "No previous messages, click here to start a new chat";
+          const latestMessageContent =
+            conversation.latestMessage?.content ||
+            "No previous messages, click here to start a new chat";
 
           return (
             <div
@@ -122,12 +137,27 @@ function Sidebar() {
                 <p className={"con-title" + (lightTheme ? "" : " dark")}>
                   {chatName}
                 </p>
-                <p className="con-lastMessage">{latestMessageContent}</p>
+                <p className="con-lastMessage">
+                  {conversation.hasNewMessages ? (
+                    <strong>{latestMessageContent}</strong>
+                  ) : (
+                    latestMessageContent
+                  )}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Snackbar for new messages */}
+      <Snackbar
+        open={newMessagesSnackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message="You have new messages"
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      />
     </div>
   );
 }
