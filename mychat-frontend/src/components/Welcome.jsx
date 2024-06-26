@@ -21,17 +21,31 @@ function Welcome() {
   }
 
   return (
-    <div className={`welcome-container${lighttheme ? '' : ' dark'}`}>
+    <motion.div
+      className={`welcome-container${lighttheme ? '' : ' dark'}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+    >
       <motion.img
         drag
         whileTap={{ scale: 1.03, rotate: 360 }}
         src={logo}
         alt='logo'
         className='welcome-logo'
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
       />
       <b>Hi, {userData.name} !!!</b>
-      <p>View and text directly to people present in the chat rooms</p>
-    </div>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        View and text directly to people present in the chat rooms
+      </motion.p>
+    </motion.div>
   );
 }
 

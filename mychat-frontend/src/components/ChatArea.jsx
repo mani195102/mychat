@@ -10,6 +10,7 @@ import Skeleton from "@mui/material/Skeleton";
 import axios from "axios";
 import { myContext } from "./MainContainer";
 import io from "socket.io-client";
+import { motion, AnimatePresence } from "framer-motion"; // Import motion components
 
 const ENDPOINT = "http://localhost:5000/";
 let socket;
@@ -139,7 +140,12 @@ function ChatArea() {
     );
   } else {
     return (
-      <div className={"chatArea-container" + (lightTheme ? "" : " dark")}>
+      <motion.div
+        className={"chatArea-container" + (lightTheme ? "" : " dark")}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+      >
         <div className={"chatArea-header" + (lightTheme ? "" : " dark")}>
           <p className={"con-icon" + (lightTheme ? "" : " dark")}>
             {chat_user[0]}
@@ -154,21 +160,46 @@ function ChatArea() {
           </IconButton>
         </div>
         <div className={"messages-container" + (lightTheme ? "" : " dark")}>
-          {allMessages
-            .slice(0)
-            .reverse()
-            .map((message, index) => {
-              const sender = message.sender;
-              const self_id = userData._id;
-              if (sender._id === self_id) {
-                return <MessageSelf props={message} key={index} />;
-              } else {
-                return <MessageOthers props={message} key={index} />;
-              }
-            })}
+          <AnimatePresence>
+            {allMessages
+              .slice(0)
+              .reverse()
+              .map((message, index) => {
+                const sender = message.sender;
+                const self_id = userData._id;
+                if (sender._id === self_id) {
+                  return (
+                    <motion.div
+                      key={message._id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                    >
+                      <MessageSelf props={message} />
+                    </motion.div>
+                  );
+                } else {
+                  return (
+                    <motion.div
+                      key={message._id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                    >
+                      <MessageOthers props={message} />
+                    </motion.div>
+                  );
+                }
+              })}
+          </AnimatePresence>
         </div>
         <div ref={messagesEndRef} className="BOTTOM" />
-        <div className={"text-input-area" + (lightTheme ? "" : " dark")}>
+        <motion.div
+          className={"text-input-area" + (lightTheme ? "" : " dark")}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+        >
           <input
             placeholder="Type a Message"
             className={"search-box" + (lightTheme ? "" : " dark")}
@@ -191,7 +222,7 @@ function ChatArea() {
           >
             <SendIcon />
           </IconButton>
-        </div>
+        </motion.div>
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>{"Empty Message Alert"}</DialogTitle>
           <DialogContent>
@@ -203,7 +234,7 @@ function ChatArea() {
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </motion.div>
     );
   }
 }
