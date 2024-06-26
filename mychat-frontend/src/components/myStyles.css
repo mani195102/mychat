@@ -218,6 +218,7 @@ body button:focus, body button:focus-visible {
 .welcome-container {
     width: 100%;
     display: flex;
+    flex:0.7;
     align-items: center;
     justify-content: center;
     flex-direction: column;
