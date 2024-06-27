@@ -115,8 +115,11 @@ body button:focus, body button:focus-visible {
     color:#000;
 }
 .other-text-content.dark {
-    border-bottom: 3px solid;
-    border-top: 3px solid;
+    background-color: lightcyan !important;
+}
+.other-text-content.dark .con-title.dark,.other-text-content.dark .con-lastMessage.dark{
+    background-color: transparent!important;
+    color:#000 !important;
 }
 .other-text-content{
     display: flex;
@@ -126,8 +129,8 @@ body button:focus, body button:focus-visible {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     color: #000;
     padding: 10px;
-    border-start-start-radius: 10px;
-    border-end-end-radius: 20px;
+    border-radius: 20px;
+    border-start-start-radius:0px;
     margin: 5px;
 }
 .private-chat-container{
@@ -209,8 +212,8 @@ body button:focus, body button:focus-visible {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     background-image: linear-gradient(to top, #9be15d 0%, #00e3ae 100%);    color: #000;
     padding: 10px;
-    border-start-end-radius: 20px;
-    border-end-start-radius: 10px;
+    border-radius: 20px;
+    border-start-end-radius: 0px;
     margin: 5px;
 
 }

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
 import { useSelector } from "react-redux";
@@ -10,7 +11,7 @@ import Skeleton from "@mui/material/Skeleton";
 import axios from "axios";
 import { myContext } from "./MainContainer";
 import io from "socket.io-client";
-import { motion, AnimatePresence } from "framer-motion"; // Import motion components
+import { motion, AnimatePresence } from "framer-motion";
 
 const ENDPOINT = "http://localhost:5000/";
 let socket;
@@ -106,6 +107,26 @@ function ChatArea() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+        },
+      };
+
+      const deleteEndpoint = `http://localhost:5000/message/${chat_id}`;
+
+      await axios.delete(deleteEndpoint, config);
+
+      setAllMessages([]);
+      setAllMessagesCopy([]);
+      setLoaded(false);
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  };
+
   if (!loaded) {
     return (
       <div
@@ -155,7 +176,7 @@ function ChatArea() {
               {chat_user}
             </p>
           </div>
-          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+          <IconButton className={"icon" + (lightTheme ? "" : " dark")} onClick={handleDelete}>
             <DeleteIcon />
           </IconButton>
         </div>
@@ -164,32 +185,25 @@ function ChatArea() {
             {allMessages
               .slice(0)
               .reverse()
-              .map((message, index) => {
+              .map((message) => {
                 const sender = message.sender;
                 const self_id = userData._id;
-                if (sender._id === self_id) {
-                  return (
-                    <motion.div
-                      key={message._id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                    >
+                const key = message._id;
+
+                return (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                  >
+                    {sender._id === self_id ? (
                       <MessageSelf props={message} />
-                    </motion.div>
-                  );
-                } else {
-                  return (
-                    <motion.div
-                      key={message._id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                    >
+                    ) : (
                       <MessageOthers props={message} />
-                    </motion.div>
-                  );
-                }
+                    )}
+                  </motion.div>
+                );
               })}
           </AnimatePresence>
         </div>
@@ -211,17 +225,28 @@ function ChatArea() {
               }
             }}
           />
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className={"file-input" + (lightTheme ? "" : " dark")}
-          />
+          <div>
+           <label className={`file-input-label${lightTheme ? '' : ' dark'}`}>
+            <input
+              id="file-input"
+              type="file"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+            <IconButton
+              className={`file-input-icon${lightTheme ? '' : ' dark'}`}
+              component="span"
+            >
+              <AttachFileIcon />
+            </IconButton>
+          </label>    
           <IconButton
             className={"icon" + (lightTheme ? "" : " dark")}
             onClick={sendMessage}
           >
             <SendIcon />
           </IconButton>
+          </div>
         </motion.div>
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>{"Empty Message Alert"}</DialogTitle>

@@ -10,7 +10,7 @@ function MessageSelf({ props }) {
         return <img src={mediaUrl} alt="Attachment" className="message-image" />;
       } else if (isVideo) {
         return (
-          <video controls className="message-video">
+          <video style={{width:'320px'}}controls className="message-video">
             <source src={mediaUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
