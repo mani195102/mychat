@@ -209,7 +209,7 @@ function Sidebar() {
           const messageStyle = isActive
             ? {}
             : isHighlighted
-            ? { fontWeight: "bold", color: "orangered", fontSize: '1rem' }
+            ? { fontWeight: "bold", color: "orangered", fontSize: '1.2rem' }
             : {};
 
           return (
