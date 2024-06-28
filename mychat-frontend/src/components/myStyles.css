@@ -48,6 +48,8 @@ body button:focus, body button:focus-visible {
 }
 .search-box{
     outline-width:0;
+    width: 90%;
+    outline:none;
     font-size: 1.25rem;
     border:none;
     margin-left:10px;
@@ -113,6 +115,11 @@ body button:focus, body button:focus-visible {
 .other-text-content .con-lastMessage{
     font-size: 1em;
     color:#000;
+}
+.ug-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 .other-text-content.dark {
     background-color: lightcyan !important;
@@ -310,6 +317,7 @@ img.image {
 .list-item{
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background-color: #fff;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     border-radius:5px;
@@ -332,6 +340,11 @@ span.hyper {
     color: purple;
     text-decoration: underline;
 }
+
+/* new message highlightener */
+
+  
+  
 @media only screen and (max-width:992px) {
 
     /* login and register */

@@ -152,4 +152,20 @@ const addSelfToGroup = expressAsyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { accessChat, fetchChats, fetchGroups, createGroupChat, groupExit, addSelfToGroup };
+const deleteGroupChat = expressAsyncHandler(async (req, res) => {
+  const { groupId } = req.params; // Assuming groupId is passed as a URL parameter
+
+  try {
+    const deletedGroup = await Chat.findByIdAndDelete(groupId);
+
+    if (!deletedGroup) {
+      res.status(404).send({ message: "Group not found" });
+    } else {
+      res.status(200).json({ message: 'Group deleted successfully' });
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Server error', error: error.message });
+  }
+});
+
+module.exports = { accessChat, fetchChats, fetchGroups, createGroupChat, groupExit, addSelfToGroup, deleteGroupChat };

@@ -18,8 +18,8 @@ function CreateGroups() {
   const lightTheme = useSelector((state) => state.themeKey);
   const userData = JSON.parse(localStorage.getItem("userdata"));
   const nav = useNavigate();
-  
-  // State for group name and snackbar
+
+  // State for group name, dialog, and snackbar
   const [groupName, setGroupName] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -30,7 +30,7 @@ function CreateGroups() {
     console.log("User not Authenticated");
     nav("/");
   }
-  
+
   const user = userData;
 
   const handleClickOpen = () => {
@@ -63,8 +63,10 @@ function CreateGroups() {
       setSnackbarMessage("Group created successfully");
       setSnackbarOpen(true);
 
-      // Navigate to groups page
-      nav("/app/groups");
+      // Navigate to groups page after a short delay
+      setTimeout(() => {
+        nav("/app/groups");
+      }, 1500); // Adjust delay as needed
     } catch (error) {
       console.error("Error creating group:", error);
     }
@@ -84,8 +86,8 @@ function CreateGroups() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              This will create a create group in which you will be the admin and
-              others will be able to join this group.
+              This will create a group in which you will be the admin and others
+              will be able to join this group.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -119,13 +121,17 @@ function CreateGroups() {
       </div>
       {/* Snackbar component for notification */}
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         open={snackbarOpen}
-        autoHideDuration={6000} // Adjust duration as needed
+        autoHideDuration={3000} // Adjust duration as needed
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
         action={
-          <Button color="secondary" size="small" onClick={() => setSnackbarOpen(false)}>
+          <Button
+            color="secondary"
+            size="small"
+            onClick={() => setSnackbarOpen(false)}
+          >
             Close
           </Button>
         }

@@ -21,7 +21,6 @@ const loginController = expressAsyncHandler(async (req, res) => {
     }
 });
 
-
 const registerController = expressAsyncHandler(async (req, res) => {
     const { name, email, password, phone } = req.body;
 
@@ -58,7 +57,6 @@ const registerController = expressAsyncHandler(async (req, res) => {
     }
 });
 
-
 const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
     const keyword = req.query.search
         ? {
@@ -83,4 +81,20 @@ const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { loginController, registerController, fetchAllUsersController };
+const deleteUserController = expressAsyncHandler(async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        const deletedUser = await UserModel.findByIdAndDelete(userId);
+
+        if (deletedUser) {
+            res.status(200).json({ message: "User deleted successfully" });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = { loginController, registerController, fetchAllUsersController, deleteUserController };

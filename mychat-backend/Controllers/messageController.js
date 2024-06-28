@@ -65,5 +65,31 @@ const sendMessage = expressAsyncHandler(async (req, res) => {
     res.status(500).send({ message: "Server error", error: error.message });
   }
 });
+const deleteMessage = expressAsyncHandler(async (req, res) => {
+  try {
+    const messageId = req.params.messageId;
+    
+    // Check if the message exists
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).send({ message: "Message not found" });
+    }
 
-module.exports = { allMessages, sendMessage };
+    // Check if the user is authorized to delete the message (optional)
+    if (message.sender.toString() !== req.user._id.toString()) {
+      return res.status(403).send({ message: "You are not authorized to delete this message" });
+    }
+
+    // Delete the message from the database
+    await Message.findByIdAndDelete(messageId);
+
+    // Optionally, update related chat or user records
+
+    res.status(200).send({ message: "Message deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ message: "Server error", error: error.message });
+  }
+});
+
+
+module.exports = { allMessages, sendMessage , deleteMessage};

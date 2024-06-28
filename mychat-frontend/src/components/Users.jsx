@@ -65,7 +65,7 @@ function Users() {
       dispatch(refreshSidebarFun());
 
       // Display Snackbar notification
-      const notificationMessage = `Message sent to ${user.name}`;
+      const notificationMessage = `created a message chat to ${user.name}`;
       setSnackbarMessage(notificationMessage);
       setSnackbarOpen(true);
     } catch (error) {
@@ -78,6 +78,24 @@ function Users() {
       return;
     }
     setSnackbarOpen(false);
+  };
+
+  const handleSearch = async (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+        },
+      };
+      const response = await axios.get("http://localhost:5000/user/fetchUsers", config);
+      const filteredUsers = response.data.filter(user =>
+        user.name.toLowerCase().includes(searchTerm)
+      );
+      setUsers(filteredUsers);
+    } catch (error) {
+      console.error("Error searching users:", error);
+    }
   };
 
   return (
@@ -115,21 +133,27 @@ function Users() {
           <input
             placeholder="Search"
             className={"search-box" + (lightTheme ? "" : " dark")}
+            onChange={handleSearch}
           />
         </div>
         <div className="ug-list">
-          {users.map((user, index) => (
+          {users.map((user) => (
             <motion.div
+              key={user._id} // Ensure each key is unique
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               className={"list-item" + (lightTheme ? "" : " dark")}
-              key={user._id}
               onClick={() => handleUserClick(user)}
             >
-              <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
-              <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                {user.name}
-              </p>
+              <div className="ug-row">
+                <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
+                <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                  {user.name}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
