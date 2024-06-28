@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { IconButton, Snackbar } from "@mui/material";
+import {
+  IconButton,
+  Snackbar,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 import {
   AccountCircle as AccountCircleIcon,
   PersonAdd as PersonAddIcon,
@@ -10,6 +17,9 @@ import {
   AddCircle as AddCircleIcon,
   Search as SearchIcon,
   Lock as LockIcon,
+  Chat as ChatIcon,
+  Menu as MenuIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,8 +40,17 @@ function Sidebar() {
   const [searchTerm, setSearchTerm] = useState("");
   const userData = JSON.parse(localStorage.getItem("userdata"));
   const [newMessagesSnackbarOpen, setNewMessagesSnackbarOpen] = useState(false);
-  const [activeChatId, setActiveChatId] = useState(null); // Track the active chat ID
-  const [messageHighlights, setMessageHighlights] = useState({}); // Track message highlights by chat ID
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [messageHighlights, setMessageHighlights] = useState({});
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // State to track if menu is open
+  const [anchorEl, setAnchorEl] = useState(null); // Anchor element for popover
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (!userData) {
@@ -63,7 +82,6 @@ function Sidebar() {
       });
 
     socket.on("message received", (newMessage) => {
-      // Update conversations with new message count
       setConversations((prevConversations) => {
         const updatedConversations = prevConversations.map((conversation) => {
           if (conversation._id === newMessage.chat._id) {
@@ -78,20 +96,42 @@ function Sidebar() {
         return updatedConversations;
       });
 
-      // Highlight new message if not in active chat
       if (newMessage.chat._id !== activeChatId) {
         setMessageHighlights((prevHighlights) => ({
           ...prevHighlights,
           [newMessage.chat._id]: true,
         }));
         setNewMessagesSnackbarOpen(true);
+        showNotification(newMessage);
       }
     });
+
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted");
+        }
+      });
+    }
 
     return () => {
       socket.off("message received");
     };
   }, [refresh, userData, navigate, activeChatId]);
+
+  const showNotification = (message) => {
+    if (Notification.permission === "granted") {
+      const otherUser = message.sender.name;
+      const notification = new Notification("New Message", {
+        body: `${otherUser}: ${message.content}`,
+        icon: "/path/to/icon.png",
+      });
+
+      notification.onclick = () => {
+        window.focus();
+      };
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("userdata");
@@ -124,11 +164,8 @@ function Sidebar() {
     navigate(`chat/${conversation._id}&${getChatDisplayName(conversation)}`);
     setRefresh((prev) => !prev);
 
-    // Reset new message indicators and clear message highlights for the clicked conversation
     const updatedConversations = conversations.map((conv) =>
-      conv._id === conversation._id
-        ? { ...conv, hasNewMessages: false }
-        : conv
+      conv._id === conversation._id ? { ...conv, hasNewMessages: false } : conv
     );
     setConversations(updatedConversations);
 
@@ -137,117 +174,189 @@ function Sidebar() {
       [conversation._id]: false,
     }));
 
-    setActiveChatId(conversation._id); // Update active chat ID
+    setActiveChatId(conversation._id);
   };
 
   const getChatDisplayName = (conversation) => {
     if (conversation.isGroupChat) {
       return conversation.chatName;
     } else {
-      const otherUser = conversation.users.find((user) => user._id !== userData._id);
+      const otherUser = conversation.users.find(
+        (user) => user._id !== userData._id
+      );
       return otherUser ? otherUser.name : "";
     }
+  };
+
+  const handleMenuToggle = (event) => {
+    setAnchorEl(event.currentTarget);
+    setIsMenuOpen((prev) => !prev);
+  };
+
+  const handleCloseMenu = () => {
+    setIsMenuOpen(false);
   };
 
   return (
     <div className="sidebar-container">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
+        <div className="menu-icon">
+          {screenWidth <= 480 && (
+            <IconButton onClick={handleMenuToggle}>
+              <MenuIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          )}
+        </div>
         <div className="other-icons">
           <IconButton onClick={() => navigate("/app/welcome")}>
             <AccountCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
           </IconButton>
-          <IconButton onClick={() => navigate("users")}>
-            <PersonAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton onClick={() => navigate("groups")}>
-            <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton onClick={() => navigate("create-groups")}>
-            <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton onClick={() => navigate("private-chat")}>
-            <LockIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton onClick={() => dispatch(toggleTheme())}>
-            {lightTheme ? (
-              <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            ) : (
-              <NightlightIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            )}
-          </IconButton>
+          {screenWidth <= 992 && (
+            <IconButton onClick={() => navigate("/app/conversations")}>
+              <ChatIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          )}
+          {screenWidth >= 480 && (
+            <>
+              <IconButton onClick={() => navigate("/app/users")}>
+                <PersonAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
+              </IconButton>
+              <IconButton onClick={() => navigate("/app/groups")}>
+                <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
+              </IconButton>
+              <IconButton onClick={() => navigate("/app/create-groups")}>
+                <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
+              </IconButton>
+              <IconButton onClick={() => navigate("/app/private-chat")}>
+                <LockIcon className={"icon" + (lightTheme ? "" : " dark")} />
+              </IconButton>
+              <IconButton onClick={() => dispatch(toggleTheme())}>
+                {lightTheme ? (
+                  <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
+                ) : (
+                  <NightlightIcon className={"icon" + (lightTheme ? "" : " dark")} />
+                )}
+              </IconButton>
+            </>
+          )}
           <IconButton onClick={handleLogout}>
             <ExitToAppIcon className={"icon" + (lightTheme ? "" : " dark")} />
           </IconButton>
         </div>
       </div>
-      <div className={"sb-search" + (lightTheme ? "" : " dark")}>
-        <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
-          <SearchIcon />
-        </IconButton>
-        <input
-          placeholder="Search"
-          className={"search-box" + (lightTheme ? "" : " dark")}
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-      </div>
-      <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
-        {filteredConversations.map((conversation, index) => {
-          const chatDisplayName = getChatDisplayName(conversation);
-          let latestMessageContent =
-            conversation.latestMessage?.content ||
-            "No previous messages, click here to start a new chat";
+      <div className="sidebar-content">
+        <div className={"sb-search" + (lightTheme ? "" : " dark")}>
+          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+            <SearchIcon />
+          </IconButton>
+          <input
+            placeholder="Search"
+            className={"search-box" + (lightTheme ? "" : " dark")}
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+        </div>
+        <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
+          {filteredConversations.map((conversation, index) => {
+            const chatDisplayName = getChatDisplayName(conversation);
+            let latestMessageContent =
+              conversation.latestMessage?.content ||
+              "No previous messages, click here to start a new chat";
 
-          // Truncate latest message content to 5 characters
-          if (latestMessageContent.length > 30) {
-            latestMessageContent = latestMessageContent.substring(0, 30) + "...";
-          }
+            if (latestMessageContent.length > 30) {
+              latestMessageContent =
+                latestMessageContent.substring(0, 30) + "...";
+            }
 
-          // Determine styles based on active chat or new messages
-          const isActive = conversation._id === activeChatId;
-          const isHighlighted = messageHighlights[conversation._id];
-          const messageStyle = isActive
-            ? {}
-            : isHighlighted
-            ? { fontWeight: "bold", color: "orangered", fontSize: '1.2rem' }
-            : {};
+            const isActive = conversation._id === activeChatId;
+            const isHighlighted = messageHighlights[conversation._id];
+            const messageStyle = isActive
+              ? {}
+              : isHighlighted
+              ? { fontWeight: "bold", color: "orangered", fontSize: "1rem" }
+              : {};
 
-          return (
-            <div
-              key={index}
-              className={`conversation-container ${
-                conversation.hasNewMessages ? "new-message" : ""
-              }`}
-              onClick={() => handleConversationClick(conversation)}
-            >
-              <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                {chatDisplayName[0]}
-              </p>
-              <div className="conversation-details">
-                <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                  {chatDisplayName}
+            return (
+              <div
+                key={index}
+                className={`conversation-container ${
+                  conversation.hasNewMessages ? "new-message" : ""
+                }`}
+                onClick={() => handleConversationClick(conversation)}
+              >
+                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                  {chatDisplayName[0]}
                 </p>
-                <p className="con-lastMessage" style={messageStyle}>
-                  {conversation.hasNewMessages ? (
-                    <strong>{latestMessageContent}</strong>
-                  ) : (
-                    latestMessageContent
-                  )}
-                </p>
+                <div className="conversation-details">
+                  <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                    {chatDisplayName}
+                  </p>
+                  <p
+                    className={"con-snippet" + (lightTheme ? "" : " dark")}
+                    style={messageStyle}
+                  >
+                    {latestMessageContent}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-
-      {/* Snackbar for new messages */}
       <Snackbar
         open={newMessagesSnackbarOpen}
-        autoHideDuration={4000}
+        autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        message="You have new messages"
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        message="You have new messages!"
       />
+      {/* Menu Popover */}
+      <Popover
+        open={isMenuOpen}
+        anchorEl={anchorEl}
+        onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
+        <div style={{ padding: "8px", minWidth: "200px" }}>
+          <IconButton
+            onClick={handleCloseMenu}
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "8px",
+              zIndex: 1, // Ensure the close icon is above other elements
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <List>
+            <ListItem button onClick={() => navigate("/app/users")}>
+              <ListItemText primary="Users" />
+            </ListItem>
+            <ListItem button onClick={() => navigate("/app/groups")}>
+              <ListItemText primary="Groups" />
+            </ListItem>
+            <ListItem button onClick={() => navigate("/app/create-groups")}>
+              <ListItemText primary="Create Groups" />
+            </ListItem>
+            <ListItem button onClick={() => navigate("/app/private-chat")}>
+              <ListItemText primary="Private Chat" />
+            </ListItem>
+            <ListItem button onClick={() => dispatch(toggleTheme())}>
+              <ListItemText primary="Toggle Theme" />
+            </ListItem>
+            <ListItem button onClick={handleLogout}>
+              <ListItemText primary="Logout" />
+            </ListItem>
+          </List>
+        </div>
+      </Popover>
     </div>
   );
 }

@@ -48,7 +48,7 @@ body button:focus, body button:focus-visible {
 }
 .search-box{
     outline-width:0;
-    width: 90%;
+    width: 60%;
     outline:none;
     font-size: 1.25rem;
     border:none;
@@ -74,9 +74,10 @@ body button:focus, body button:focus-visible {
     padding: 8px 5px;
     margin:5px;
 }
-.sidebar-container .conversation-container{
+.sidebar-container .conversation-container,.se-conversation .conversation-container{
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    border-bottom: 3px solid;  
+    border-bottom: 3px solid;
+    border-top: 3px solid;  
     border-radius:10px;
 }
 .con-icon.dark {
@@ -244,6 +245,7 @@ img.welcome-logo {
     padding:10px;
     margin:10px;
     background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border-radius:5px;
     display: flex;
     justify-content: space-between;
@@ -340,14 +342,61 @@ span.hyper {
     color: purple;
     text-decoration: underline;
 }
+.other-icons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.sidebar-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+.se-conversation {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+img.message-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    object-position: top;
+}
 
-/* new message highlightener */
+@media only screen and (max-width:1200px) {
 
-  
+    .sidebar-container{
+        flex:0.5;
+    }
+}
   
 @media only screen and (max-width:992px) {
 
-    /* login and register */
+    .sidebar-container {
+        flex: 0;
+    }
+    .sidebar-container .sb-conversations,
+    .sidebar-container .sb-search {
+      display: none;
+    }
+  
+    .sb-header .icon.chat {
+      display: inline-block;
+    }
+    .main-container{
+     flex-direction: column;
+    }
+    .chatArea-container{
+        flex:1;
+        height: 500px;
+    }
+    .createGroups-container{
+        flex:0;
+        width:93%;
+    }
+
+    login and register
     .login-box{
         flex:0.7;
     }
@@ -361,58 +410,61 @@ span.hyper {
     .login-box h3 {
         font-size: 1.7rem;
     }
+    .welcome-container{
+        flex:1;
+    }
     .welcome-container p {
         font-size: 0.9rem;
+        padding: 0 20px;
     }
     img.welcome-logo {
         max-width: 55%;
     }
     .welcome-container b {
         font-size: 1.6rem;
-        margin: 1em 0;
-    }
+        margin:0.5em 0;
+    } 
 }
-@media only screen and (max-width:640px) {
-    .private-chat-container{
-        flex:1;
-    }
-    .sb-search,.sb-conversations {
-        display: none;
-    }
-    .sb-header{
-        flex-direction: column;
-        flex: 1;
-    }
-    .other-icons {
-        flex-direction: row;
-        display: flex;
-    }
-    .chatArea-container,.login-box,.image-container {
-        flex: 1;
-    }
-/* sidebar-container */
-
-    .sidebar-container {
-        flex: 0;
-    }
-    .login-container {
-        flex-direction: column;
-
-        width: 95%;
-        height: 100%;
+@media only screen and (max-width:767px) {
+    img.image {
+        width: 50%;
+        object-fit: cover;
     }
     .login-box h3 {
         font-size: 1.6rem;
     }
-
-    /* main-container */
-    .main-container{
-        height:100%;
-        width:100vw;
-        border-radius: unset;
+    .login-container {
+        width: 95%;
+        height:84vh;
         flex-direction: column;
     }
     
-    
+}
+@media only screen and (max-width:480px) {
+    img.welcome-logo {
+        max-width: 90%;
+    }
+    .image-container {
+        flex: 1;
+    }
+    .login-container{
+        height:92vh;
+    }
+    .other-icons{
+        justify-content:end;
+    }
+    img.image {
+        width: 100%;
+        object-fit: contain;
+        height: 140px;
+        object-position: top;
+    }
+    .login-box {
+        padding: 20px 0;
+    }
+    .main-container{
+        width:95%;
+        height:96vh;
+    }
 }
 

@@ -22,7 +22,7 @@ function Welcome() {
 
   return (
     <motion.div
-      className={`welcome-container${lighttheme ? '' : ' dark'}`}
+      className="welcome-container"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}

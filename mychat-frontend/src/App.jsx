@@ -10,6 +10,7 @@ import Groups from './components/Groups';
 import Users from './components/Users';
 //import PrivateChat from './components/PrivateChat'
 import { useDispatch,useSelector } from 'react-redux';
+ import SearchAndConversations from './components/SearchandConversations'
 
 function App() {
   const dispatch = useDispatch();
@@ -23,6 +24,8 @@ function App() {
       <Route path='users' element={<Users />} />
       <Route path='groups' element={<Groups />} />
       <Route path='create-groups' element={<CreateGroups />} />
+      <Route path='conversations' element={<SearchAndConversations />} />
+
       {/* <Route path='private-chat' element={<PrivateChat />} /> */}
     </Route>
   </Routes>
