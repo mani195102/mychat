@@ -8,7 +8,7 @@ import Welcome from './components/Welcome';
 import CreateGroups from './components/CreateGroups';
 import Groups from './components/Groups';
 import Users from './components/Users';
-//import PrivateChat from './components/PrivateChat'
+import Profile from './pages/Profile'
 import { useDispatch,useSelector } from 'react-redux';
  import SearchAndConversations from './components/SearchandConversations'
 
@@ -18,6 +18,7 @@ function App() {
     <div className="App">
     <Routes>
     <Route path='/' element={<Login />} />
+    <Route path='profile/:id' element={<Profile />} />
     <Route path='app' element={<MainContainer />}>
       <Route path='welcome' element={<Welcome />} />
       <Route path='chat/:_id' element={<ChatArea />} />

@@ -9,6 +9,7 @@ const chatSchema = new mongoose.Schema({
         ref: "Message",
     },
     groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    groupImage: { type: String }, // Store URL or path of group image
 }, { timestamps: true });
 
 const Chat = mongoose.model('Chat', chatSchema);

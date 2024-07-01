@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Avatar,
 } from "@mui/material";
 import {
   AccountCircle as AccountCircleIcon,
@@ -24,7 +25,7 @@ import {
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { myContext } from "./MainContainer";
 import io from "socket.io-client";
 
@@ -124,7 +125,7 @@ function Sidebar() {
       const otherUser = message.sender.name;
       const notification = new Notification("New Message", {
         body: `${otherUser}: ${message.content}`,
-        icon: "/path/to/icon.png",
+        icon: "/path/to/icon.png", // Ensure this path is correct
       });
 
       notification.onclick = () => {
@@ -160,23 +161,57 @@ function Sidebar() {
     return chatName.includes(searchTerm);
   });
 
-  const handleConversationClick = (conversation) => {
-    navigate(`chat/${conversation._id}&${getChatDisplayName(conversation)}`);
-    setRefresh((prev) => !prev);
+  // const handleConversationClick = (conversation) => {
+  //   navigate(`chat/${conversation._id}&${getChatDisplayName(conversation)}`);
+  //   setRefresh((prev) => !prev);
 
+  //   const updatedConversations = conversations.map((conv) =>
+  //     conv._id === conversation._id ? { ...conv, hasNewMessages: false } : conv
+  //   );
+  //   setConversations(updatedConversations);
+
+  //   setMessageHighlights((prevHighlights) => ({
+  //     ...prevHighlights,
+  //     [conversation._id]: false,
+  //   }));
+
+  //   setActiveChatId(conversation._id);
+  //   sessionStorage.setItem('chatUserName', getChatDisplayName(conversation));
+  //   sessionStorage.setItem('chatUserImage', getOtherUserProfileImage(conversation));
+  //   sessionStorage.setItem('chatUserToken', userData.token);
+  //   sessionStorage.setItem('groupImage', conversation.groupImage || '');
+  // };
+
+  const handleConversationClick = (conversation) => {
+    // Determine if it's a group chat or user-to-user chat
+    const isGroupChat = conversation.isGroupChat;
+    const chatDisplayName = getChatDisplayName(conversation);
+    const chatUserImage = isGroupChat ? (conversation.groupImage || '') : getOtherUserProfileImage(conversation);
+  
+    // Set sessionStorage items based on chat type
+    sessionStorage.setItem('chatUserName', chatDisplayName);
+    sessionStorage.setItem('chatUserImage', chatUserImage);
+    sessionStorage.setItem('chatUserToken', userData.token);
+    sessionStorage.setItem('groupImage', isGroupChat ? (conversation.groupImage || '') : '');
+  
+    // Navigate to chat page
+    navigate(`chat/${conversation._id}&${chatDisplayName}`);
+  
+    // Update state and reset new message flag
+    setRefresh((prev) => !prev);
     const updatedConversations = conversations.map((conv) =>
       conv._id === conversation._id ? { ...conv, hasNewMessages: false } : conv
     );
     setConversations(updatedConversations);
-
+  
     setMessageHighlights((prevHighlights) => ({
       ...prevHighlights,
       [conversation._id]: false,
     }));
-
+  
     setActiveChatId(conversation._id);
   };
-
+  
   const getChatDisplayName = (conversation) => {
     if (conversation.isGroupChat) {
       return conversation.chatName;
@@ -186,6 +221,13 @@ function Sidebar() {
       );
       return otherUser ? otherUser.name : "";
     }
+  };
+
+  const getOtherUserProfileImage = (conversation) => {
+    const otherUser = conversation.users.find(
+      (user) => user._id !== userData._id
+    );
+    return otherUser ? otherUser.profileImage : null;
   };
 
   const handleMenuToggle = (event) => {
@@ -208,9 +250,14 @@ function Sidebar() {
           )}
         </div>
         <div className="other-icons">
-          <IconButton onClick={() => navigate("/app/welcome")}>
-            <AccountCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
+          <Link to="/app/welcome">
+            {/* Render Profile Image or AccountCircleIcon */}
+            {userData.profileImage ? (
+              <Avatar src={userData.profileImage} className={"profile-image icon" + (lightTheme ? "" : " dark")} />
+            ) : (
+              <AccountCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            )}
+          </Link>
           {screenWidth <= 992 && (
             <IconButton onClick={() => navigate("/app/conversations")}>
               <ChatIcon className={"icon" + (lightTheme ? "" : " dark")} />
@@ -227,9 +274,9 @@ function Sidebar() {
               <IconButton onClick={() => navigate("/app/create-groups")}>
                 <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
               </IconButton>
-              <IconButton onClick={() => navigate("/app/private-chat")}>
+              {/* <IconButton onClick={() => navigate("/app/private-chat")}>
                 <LockIcon className={"icon" + (lightTheme ? "" : " dark")} />
-              </IconButton>
+              </IconButton> */}
               <IconButton onClick={() => dispatch(toggleTheme())}>
                 {lightTheme ? (
                   <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
@@ -284,9 +331,25 @@ function Sidebar() {
                 }`}
                 onClick={() => handleConversationClick(conversation)}
               >
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                  {chatDisplayName[0]}
-                </p>
+                <div className={"con-icon" + (lightTheme ? "" : " dark")}>
+                  {conversation.isGroupChat ? (
+                    conversation.groupImage ? (
+                      <Avatar
+                        src={conversation.groupImage}
+                        alt="Group Image"
+                        className={"profile-image icon" + (lightTheme ? "" : " dark")}
+                      />
+                    ) : (
+                      <span>{chatDisplayName[0]}</span>
+                    )
+                  ) : (
+                    <Avatar
+                      src={getOtherUserProfileImage(conversation)}
+                      alt="User Profile Image"
+                      className={"profile-image icon" + (lightTheme ? "" : " dark")}
+                    />
+                  )}
+                </div>
                 <div className="conversation-details">
                   <p className={"con-title" + (lightTheme ? "" : " dark")}>
                     {chatDisplayName}

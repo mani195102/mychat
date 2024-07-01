@@ -19,6 +19,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { refreshSidebarFun } from "../Features/refreshSidebar";
 import { myContext } from "./MainContainer";
+import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
 
 function Groups() {
   const { refresh, setRefresh } = useContext(myContext);
@@ -30,6 +31,8 @@ function Groups() {
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [groupImage, setGroupImage] = useState(null);
   const nav = useNavigate();
 
   if (!userData) {
@@ -109,6 +112,87 @@ function Groups() {
     group.chatName.toLowerCase().includes(searchTerm)
   );
 
+  const handleImageChange = (e) => {
+    setGroupImage(e.target.files[0]);
+  };
+
+  // Function to create group with admin permissions
+  const createGroupWithAdminPermissions = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    };
+
+    const formData = new FormData();
+    formData.append("name", groupName);
+    formData.append("users", JSON.stringify(["647d94aea97e40a17278c7e5", "647d999e4c3dd7ca9a2e6543"])); // Example users array
+    if (groupImage) {
+      formData.append("groupImage", groupImage);
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/chat/createGroupWithAdminPermissions",
+        formData,
+        config
+      );
+
+      // Show snackbar on successful creation
+      setSnackbarMessage("Group with admin permissions created successfully");
+      setSnackbarOpen(true);
+
+      // Refresh the groups list
+      setRefresh(!refresh);
+    } catch (error) {
+      console.error("Error creating group with admin permissions:", error);
+    }
+  };
+
+  // Function to create group
+  const createGroup = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    };
+
+    const formData = new FormData();
+    formData.append("name", groupName);
+    formData.append("users", JSON.stringify(["647d94aea97e40a17278c7e5", "647d999e4c3dd7ca9a2e6543"])); // Example users array
+    if (groupImage) {
+      formData.append("groupImage", groupImage);
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/chat/createGroup",
+        formData,
+        config
+      );
+
+      // Show snackbar on successful creation
+      setSnackbarMessage("Group created successfully");
+      setSnackbarOpen(true);
+
+      // Refresh the groups list
+      setRefresh(!refresh);
+    } catch (error) {
+      console.error("Error creating group:", error);
+    }
+  };
+
+  // Handle create group based on user role
+  const handleCreateGroup = () => {
+    if (userData.isAdmin) {
+      createGroupWithAdminPermissions();
+    } else {
+      createGroup();
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -152,16 +236,20 @@ function Groups() {
         <div className="ug-list">
           {filteredGroups.map((group) => (
             <motion.div
-              key={group._id}
+              key={group._id}  // Ensure the key is unique
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               className={"list-item" + (lightTheme ? "" : " dark")}
               onClick={() => handleGroupClick(group)}
             >
               <div className="ug-row">
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                  {group.chatName ? group.chatName[0] : ""}
-                </p>
+                {group.groupImage ? (
+                  <img src={group.groupImage} alt="Group" className="group-icon" />
+                ) : (
+                  <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                    {group.chatName ? group.chatName[0] : ""}
+                  </p>
+                )}
                 <p className={"con-title" + (lightTheme ? "" : " dark")}>
                   {group.chatName}
                 </p>
@@ -193,7 +281,7 @@ function Groups() {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for group deletion */}
+      {/* Snackbar for group creation and deletion */}
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         open={snackbarOpen}

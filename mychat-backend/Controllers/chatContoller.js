@@ -1,6 +1,9 @@
 const expressAsyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
 const Chat = require("../models/chatModel");
+const User = require("../models/userModel");
+const { USER_ROLE, ADMIN_ROLE } = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
+const cloudinary = require("../config/cloudinary"); // Import Cloudinary configuration
 
 const accessChat = expressAsyncHandler(async (req, res) => {
   const { userId } = req.body;
@@ -72,42 +75,94 @@ const fetchGroups = expressAsyncHandler(async (req, res) => {
 });
 
 const createGroupChat = expressAsyncHandler(async (req, res) => {
-  if (!req.body.users || !req.body.name) {
-    return res.status(400).send({ message: "Data is insufficient" });
-  }
-
-  let users;
   try {
-    users = JSON.parse(req.body.users);  // Parse users if it's a JSON string
-  } catch (error) {
-    users = req.body.users;  // Use it directly if it's already an array
-  }
+    const { users: usersRaw, name } = req.body;
 
-  users.push(req.user);
+    if (!usersRaw || !name) {
+      return res.status(400).send({ message: "Data is insufficient" });
+    }
 
-  try {
-    const groupChat = await Chat.create({
-      chatName: req.body.name,
+    let users;
+    try {
+      users = JSON.parse(usersRaw); // Parse users if it's a JSON string
+    } catch (error) {
+      users = usersRaw; // Use it directly if it's already an array
+    }
+
+    users.push(req.user);
+
+    const groupChatData = {
+      chatName: name,
       users: users,
       isGroupChat: true,
       groupAdmin: req.user,
-    });
+    };
+
+    // Check if there's an uploaded file
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      groupChatData.groupImage = result.secure_url; // Save the Cloudinary URL
+    }
+
+    const groupChat = await Chat.create(groupChatData);
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
 
-    res.status(200).json({ message: 'Group chat created', chat: fullGroupChat });
+    res.status(200).json({ message: "Group chat created", chat: fullGroupChat });
   } catch (error) {
-    res.status(500).send({ message: 'Server error', error: error.message });
+    res.status(500).send({ message: "Server error", error: error.message });
   }
 });
+
+const createGroupChatWithAdminPermissions = [
+  upload.single('groupImage'), // Middleware to handle the file upload
+  expressAsyncHandler(async (req, res) => {
+    if (!req.body.users || !req.body.name) {
+      return res.status(400).send({ message: 'Data is insufficient' });
+    }
+
+    let users;
+    try {
+      users = JSON.parse(req.body.users); // Parse users if it's a JSON string
+    } catch (error) {
+      users = req.body.users; // Use it directly if it's already an array
+    }
+
+    users.push(req.user);
+
+    try {
+      const groupChatData = {
+        chatName: req.body.name,
+        users: users,
+        isGroupChat: true,
+        groupAdmin: req.user,
+      };
+
+      // Check if there's an uploaded file
+      if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        groupChatData.groupImage = result.secure_url; // Save the Cloudinary URL
+      }
+
+      const groupChat = await Chat.create(groupChatData);
+
+      const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+        .populate('users', '-password')
+        .populate('groupAdmin', '-password');
+
+      res.status(200).json({ message: 'Group chat created', chat: fullGroupChat });
+    } catch (error) {
+      res.status(500).send({ message: 'Server error', error: error.message });
+    }
+  })
+];
 
 const groupExit = expressAsyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
 
   try {
-    // Remove the user from the chat's users array
     const removed = await Chat.findByIdAndUpdate(
       chatId,
       { $pull: { users: userId } },
@@ -132,12 +187,8 @@ const addSelfToGroup = expressAsyncHandler(async (req, res) => {
   try {
     const added = await Chat.findByIdAndUpdate(
       chatId,
-      {
-        $push: { users: userId },
-      },
-      {
-        new: true,
-      }
+      { $push: { users: userId } },
+      { new: true }
     )
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
@@ -153,7 +204,7 @@ const addSelfToGroup = expressAsyncHandler(async (req, res) => {
 });
 
 const deleteGroupChat = expressAsyncHandler(async (req, res) => {
-  const { groupId } = req.params; // Assuming groupId is passed as a URL parameter
+  const { groupId } = req.params;
 
   try {
     const deletedGroup = await Chat.findByIdAndDelete(groupId);
@@ -168,4 +219,13 @@ const deleteGroupChat = expressAsyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { accessChat, fetchChats, fetchGroups, createGroupChat, groupExit, addSelfToGroup, deleteGroupChat };
+module.exports = {
+  accessChat,
+  fetchChats,
+  fetchGroups,
+  createGroupChat,
+  createGroupChatWithAdminPermissions,
+  groupExit,
+  addSelfToGroup,
+  deleteGroupChat,
+};

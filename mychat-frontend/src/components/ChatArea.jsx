@@ -31,7 +31,6 @@ function ChatArea() {
   const [loaded, setLoaded] = useState(false);
   const [socketConnectionStatus, setSocketConnectionStatus] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [activeChatId, setActiveChatId] = useState(null); // Track the active chat ID
 
   useEffect(() => {
     if (!socket) {
@@ -176,6 +175,38 @@ function ChatArea() {
     );
   }
 
+  const getInitial = (name) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  const getProfileImage = () => {
+    // Check if the chat is a group chat based on chat_id or some other indicator
+    const isGroupChat = chat_user.includes("group"); // Update this condition based on your actual logic
+    const chatUserImage = sessionStorage.getItem('chatUserImage');
+    const groupImage = sessionStorage.getItem('groupImage');
+    
+    if (isGroupChat) {
+      // Mock group image logic
+      // Replace with actual group image logic if needed
+      return (
+        <div className="profile-image">
+          <img src={groupImage} alt="Group Profile" className="profile-img" />
+        </div>
+      );
+    } else {
+      // Assume the user profile image is stored in sessionStorage chatUserImage
+      return chatUserImage ? (
+        <div className="profile-image">
+          <img src={chatUserImage} alt="User Profile" className="profile-img" />
+        </div>
+      ) : (
+        <div className="profile-image">
+          {getInitial(chat_user)}
+        </div>
+      );
+    }
+  };
+  
   return (
     <motion.div
       className={"chatArea-container" + (lightTheme ? "" : " dark")}
@@ -184,9 +215,9 @@ function ChatArea() {
       exit={{ opacity: 0, y: -20 }}
     >
       <div className={"chatArea-header" + (lightTheme ? "" : " dark")}>
-        <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-          {chat_user[0]}
-        </p>
+        <div className={"con-icon" + (lightTheme ? "" : " dark")}>
+          {getProfileImage()}
+        </div>
         <div className={"header-text" + (lightTheme ? "" : " dark")}>
           <p className={"con-title" + (lightTheme ? "" : " dark")}>
             {chat_user}
@@ -205,7 +236,7 @@ function ChatArea() {
               const sender = message.sender;
               const self_id = userData._id;
               const key = message._id;
-
+  
               return (
                 <motion.div
                   key={key}
@@ -242,26 +273,26 @@ function ChatArea() {
           }}
         />
         <div>
-         <label className={`file-input-label${lightTheme ? '' : ' dark'}`}>
-          <input
-            id="file-input"
-            type="file"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
+          <label className={`file-input-label${lightTheme ? '' : ' dark'}`}>
+            <input
+              id="file-input"
+              type="file"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+            <IconButton
+              className={`file-input-icon${lightTheme ? '' : ' dark'}`}
+              component="span"
+            >
+              <AttachFileIcon />
+            </IconButton>
+          </label>
           <IconButton
-            className={`file-input-icon${lightTheme ? '' : ' dark'}`}
-            component="span"
+            className={"icon" + (lightTheme ? "" : " dark")}
+            onClick={sendMessage}
           >
-            <AttachFileIcon />
+            <SendIcon />
           </IconButton>
-        </label>    
-        <IconButton
-          className={"icon" + (lightTheme ? "" : " dark")}
-          onClick={sendMessage}
-        >
-          <SendIcon />
-        </IconButton>
         </div>
       </motion.div>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -276,7 +307,7 @@ function ChatArea() {
         </DialogActions>
       </Dialog>
     </motion.div>
-  );
+  );  
 }
 
 export default ChatArea;

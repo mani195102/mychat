@@ -13,12 +13,17 @@
     border-radius:5px;
     display: flex;
 }
-.icon{
-    width:1em !important;
-    height:1em !important;
-}
 body button:focus, body button:focus-visible {
     outline:none;
+}
+.profile-text {
+    width: 35px;
+    height: 35px;
+    background-color: #00000082;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 /* sidebararea */
 
@@ -90,11 +95,10 @@ body button:focus, body button:focus-visible {
     font-size: 1.4rem;
     text-transform: uppercase;
     font-weight: 600;
-    width:32px;
-    height:32px;
-    line-height: 33px;
+    width:38px;
+    height:38px;
+    line-height: 38px;
     border-radius:50%;
-    background-color:#00000082;
     color:#fff;
     padding: 2px;
 }
@@ -238,17 +242,43 @@ img.welcome-logo {
 }
 
 /* creategroups */
-
-.createGroups-container{
+.grouping{
     flex: 0.7;
     align-self: center;
+}
+img.group-logo {
+    width: 100%;
+    height: 18vw;
+}
+.grouping h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 0.5em;
+    background-color: #ffffff3d;
+    width: max-content;
+    margin: 0 auto 1em;
+    padding: 14px 24px;
+    border-start-end-radius: 20px;
+    border-end-start-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.createGroups-container{
+   
     padding:10px;
     margin:10px;
     background-color: #fff;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border-radius:5px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
+}
+.ug-row img.group-icon,.profile-image img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
 }
 
 /* login */
@@ -265,7 +295,7 @@ img.image {
     object-fit: cover;
 }
 .image-container{
-    flex:0.3;
+    flex:0.5;
     display: flex;
     border-radius: 5px;
     justify-content: center;
@@ -278,11 +308,11 @@ img.image {
 }
 .login-box{
     flex:0.7;
+    padding:25px;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     background-color: #fff;
     border-radius:5px;
     margin:10px;
-    gap:20px;
     color:#63d7b0;
     font-weight: bolder;
     display: flex;
@@ -328,10 +358,12 @@ img.image {
     transition-duration: 0.5s;
     gap:10px;
 }
-/* .list-container .sb-search {
-    padding: 1px;
-    margin-bottom: 0px;
-} */
+.message-media img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    object-position: top;
+}
 .ug-list::-webkit-scrollbar{
     display: none;
 }
@@ -344,7 +376,7 @@ span.hyper {
 }
 .other-icons {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width: 100%;
 }
 .sidebar-content {

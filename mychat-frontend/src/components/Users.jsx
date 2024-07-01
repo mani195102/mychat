@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./myStyles.css";
 import SearchIcon from "@mui/icons-material/Search";
-import { IconButton, Snackbar } from "@mui/material";
+import { IconButton, Snackbar, Avatar } from "@mui/material"; // Added Avatar for displaying user images
 import RefreshIcon from "@mui/icons-material/Refresh";
 import logo from "../assets/chatapp.svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -149,7 +149,9 @@ function Users() {
               onClick={() => handleUserClick(user)}
             >
               <div className="ug-row">
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
+                {/* Display user profile image */}
+                <Avatar class="profile-image" alt={user.name} src={user.profileImage} />
+
                 <p className={"con-title" + (lightTheme ? "" : " dark")}>
                   {user.name}
                 </p>

@@ -15,28 +15,32 @@ const app = express();
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'uploads',
+    folder: 'uploads', // Ensure this matches your Cloudinary folder setup
     allowed_formats: ['jpg', 'jpeg', 'png', 'mp4']
   }
 });
 
 const upload = multer({ storage: storage });
 
-
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
+// Routes
 app.use('/user', userRoutes);
 app.use('/chat', chatRoutes);
 app.use('/message', messageRoutes);
 
+// Serve static files (ensure path matches your Cloudinary folder structure)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Basic route
 app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+// File upload endpoint
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -45,6 +49,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     const result = await cloudinary.uploader.upload(req.file.path);
 
+    // Assuming Cloudinary returns a secure URL with forward slashes
     return res.status(200).json({ url: result.secure_url });
   } catch (err) {
     console.error('Error uploading file:', err);
@@ -52,8 +57,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+// Socket.io setup
 const PORT = process.env.PORT || 5000;
-
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -65,6 +70,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
 });
 
+// Socket.io event handling
 io.on("connection", (socket) => {
   console.log("New client connected");
 

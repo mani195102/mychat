@@ -10,7 +10,7 @@ function MessageSelf({ props }) {
         return <img src={mediaUrl} alt="Attachment" className="message-image" />;
       } else if (isVideo) {
         return (
-          <video style={{width:'320px'}}controls className="message-video">
+          <video style={{ width: '320px' }} controls className="message-video">
             <source src={mediaUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -31,6 +31,7 @@ function MessageSelf({ props }) {
       <div className="messageBox">
         <p style={{ color: 'black' }}>{props.content}</p>
         {renderMedia(props.media)}
+        <p className="self-timeStamp">{props.timeStamp}</p>
       </div>
     </div>
   );

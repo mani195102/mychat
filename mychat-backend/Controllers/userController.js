@@ -1,20 +1,22 @@
-const express = require("express");
+const expressAsyncHandler = require("express-async-handler");
 const UserModel = require("../models/userModel");
 const generateToken = require("../config/generateToken");
-const expressAsyncHandler = require("express-async-handler");
+const cloudinary = require("../config/cloudinary"); // Import Cloudinary configuration
+
 
 const loginController = expressAsyncHandler(async (req, res) => {
     const { name, password } = req.body;
     const user = await UserModel.findOne({ name });
     if (user && (await user.matchPassword(password))) {
+        const isAdmin = user.isAdmin;
         const response = {
             _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.isAdmin,
-            token: generateToken(user._id),
+            token: generateToken(user._id, isAdmin),
         };
-        res.status(200).json(response); // Changed status to 200 for success
+        res.status(200).json(response);
     } else {
         res.status(401);
         throw new Error("Invalid Username or Password");
@@ -22,7 +24,7 @@ const loginController = expressAsyncHandler(async (req, res) => {
 });
 
 const registerController = expressAsyncHandler(async (req, res) => {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, about } = req.body;
 
     if (!name || !email || !password || !phone) {
         res.status(400).send({ message: "All necessary input fields have not been filled" });
@@ -41,13 +43,21 @@ const registerController = expressAsyncHandler(async (req, res) => {
         return;
     }
 
-    const user = await UserModel.create({ name, email, password, phone });
+    let profileImage = null;
+    if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        profileImage = result.secure_url; // Save the Cloudinary URL
+    }
+
+    const user = await UserModel.create({ name, email, password, phone, about, profileImage });
     if (user) {
         res.status(201).json({
             _id: user._id,
             name: user.name,
             email: user.email,
             phone: user.phone,
+            about: user.about,
+            profileImage: user.profileImage,
             isAdmin: user.isAdmin,
             token: generateToken(user._id),
         });
@@ -56,6 +66,7 @@ const registerController = expressAsyncHandler(async (req, res) => {
         throw new Error("Registration Error");
     }
 });
+
 
 const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
     const keyword = req.query.search
@@ -70,6 +81,7 @@ const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
 
     try {
         const users = await UserModel.find({ ...keyword, _id: { $ne: req.user_id } });
+        console.log("Fetched Users:", users); // Log the fetched users
 
         if (users.length === 0) {
             return res.status(404).json({ message: "No users found" });
@@ -80,6 +92,7 @@ const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 const deleteUserController = expressAsyncHandler(async (req, res) => {
     const userId = req.params.userId;
@@ -97,4 +110,49 @@ const deleteUserController = expressAsyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { loginController, registerController, fetchAllUsersController, deleteUserController };
+const editUserProfileController = expressAsyncHandler(async (req, res) => {
+    const userId = req.params.userId;
+    const { name, about, phone } = req.body;
+    let profileImage = null;
+
+    if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        profileImage = result.secure_url; // Save the Cloudinary URL
+    }
+
+    try {
+        const user = await UserModel.findById(userId);
+
+        if (user) {
+            user.name = name || user.name;
+            user.about = about || user.about;
+            user.phone = phone || user.phone;
+            user.profileImage = profileImage || user.profileImage;
+
+            const updatedUser = await user.save();
+
+            res.status(200).json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                phone: updatedUser.phone,
+                about: updatedUser.about,
+                profileImage: updatedUser.profileImage,
+                isAdmin: updatedUser.isAdmin,
+            });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+module.exports = {
+    loginController,
+    registerController,
+    fetchAllUsersController,
+    deleteUserController,
+    editUserProfileController
+};
