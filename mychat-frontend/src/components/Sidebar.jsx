@@ -22,6 +22,7 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+import HomeIcon from '@mui/icons-material/Home';
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
@@ -250,7 +251,7 @@ function Sidebar() {
           )}
         </div>
         <div className="other-icons">
-          <Link to="/app/welcome">
+          <Link to= {`/app/profile/${userData._id}`}>
             {/* Render Profile Image or AccountCircleIcon */}
             {userData.profileImage ? (
               <Avatar src={userData.profileImage} className={"profile-image icon" + (lightTheme ? "" : " dark")} />
@@ -258,6 +259,11 @@ function Sidebar() {
               <AccountCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
             )}
           </Link>
+          <Link to= "/app/welcome">
+            <IconButton>
+              <HomeIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+            </Link>
           {screenWidth <= 992 && (
             <IconButton onClick={() => navigate("/app/conversations")}>
               <ChatIcon className={"icon" + (lightTheme ? "" : " dark")} />
@@ -274,9 +280,6 @@ function Sidebar() {
               <IconButton onClick={() => navigate("/app/create-groups")}>
                 <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
               </IconButton>
-              {/* <IconButton onClick={() => navigate("/app/private-chat")}>
-                <LockIcon className={"icon" + (lightTheme ? "" : " dark")} />
-              </IconButton> */}
               <IconButton onClick={() => dispatch(toggleTheme())}>
                 {lightTheme ? (
                   <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
@@ -399,6 +402,9 @@ function Sidebar() {
             <CloseIcon />
           </IconButton>
           <List>
+          <ListItem button onClick={() => navigate("/app/welcome")}>
+              <ListItemText primary="Welcome" />
+            </ListItem>
             <ListItem button onClick={() => navigate("/app/users")}>
               <ListItemText primary="Users" />
             </ListItem>

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./myStyles.css";
 import SearchIcon from "@mui/icons-material/Search";
-import { IconButton, Snackbar, Avatar } from "@mui/material"; // Added Avatar for displaying user images
+import { IconButton, Snackbar, Avatar } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import logo from "../assets/chatapp.svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -65,7 +65,7 @@ function Users() {
       dispatch(refreshSidebarFun());
 
       // Display Snackbar notification
-      const notificationMessage = `created a message chat to ${user.name}`;
+      const notificationMessage = `Created a message chat to ${user.name}`;
       setSnackbarMessage(notificationMessage);
       setSnackbarOpen(true);
     } catch (error) {
@@ -105,13 +105,14 @@ function Users() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0 }}
         transition={{
-          duration: "0.3",
+          duration: 0.3,
         }}
-        className="list-container"
+        className={"list-container" + (lightTheme ? "" : " dark")}
       >
         <div className={"ug-header" + (lightTheme ? "" : " dark")}>
           <img
             src={logo}
+            alt="Logo"
             style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
           />
           <p className={"ug-title" + (lightTheme ? "" : " dark")}>
@@ -150,7 +151,7 @@ function Users() {
             >
               <div className="ug-row">
                 {/* Display user profile image */}
-                <Avatar class="profile-image" alt={user.name} src={user.profileImage} />
+                <Avatar className="profile-image" alt={user.name} src={user.profileImage || '/default-profile.png'} />
 
                 <p className={"con-title" + (lightTheme ? "" : " dark")}>
                   {user.name}

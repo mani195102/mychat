@@ -13,6 +13,9 @@ const loginController = expressAsyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            phone: user.phone,
+            about: user.about,
+            profileImage: user.profileImage,
             isAdmin: user.isAdmin,
             token: generateToken(user._id, isAdmin),
         };
@@ -109,6 +112,29 @@ const deleteUserController = expressAsyncHandler(async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+const ProfileController = expressAsyncHandler(async (req, res) => {
+    try {
+        // Fetch profile based on authenticated user's ID
+        const profile = await UserModel.findById(req.user._id);
+
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+
+        res.json({
+            _id: profile._id,
+            name: profile.name,
+            email: profile.email,
+            phone: profile.phone,
+            about: profile.about,
+            profileImage: profile.profileImage,
+            isAdmin: profile.isAdmin,
+        });
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 const editUserProfileController = expressAsyncHandler(async (req, res) => {
     const userId = req.params.userId;
@@ -154,5 +180,6 @@ module.exports = {
     registerController,
     fetchAllUsersController,
     deleteUserController,
+    ProfileController,
     editUserProfileController
 };

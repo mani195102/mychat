@@ -18,8 +18,8 @@ function App() {
     <div className="App">
     <Routes>
     <Route path='/' element={<Login />} />
-    <Route path='profile/:id' element={<Profile />} />
     <Route path='app' element={<MainContainer />}>
+     <Route path='profile/:id' element={<Profile />} />
       <Route path='welcome' element={<Welcome />} />
       <Route path='chat/:_id' element={<ChatArea />} />
       <Route path='users' element={<Users />} />
