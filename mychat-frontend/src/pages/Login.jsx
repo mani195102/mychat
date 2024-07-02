@@ -80,7 +80,7 @@ function Login() {
       localStorage.setItem("userdata", JSON.stringify(response.data)); // Store user data
       navigate("/app/welcome");
     } catch (error) {
-      if (error.response.status === 400) {
+      if (error.response && error.response.status === 400) {
         setSignInStatus({
           msg: error.response.data.message,
           key: Math.random(),
@@ -110,10 +110,13 @@ function Login() {
         <div className="login-box">
           {showLogin ? (
             <>
-              <h3  style={{marginBottom:'1em'}}>Login to your account</h3>
+              <h3 style={{marginBottom:'1em'}}>Login to your account</h3>
               <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
+                initialValues={{ name: initialValues.name, password: initialValues.password }}
+                validationSchema={Yup.object({
+                  name: Yup.string().required('Username is required'),
+                  password: Yup.string().required('Password is required'),
+                })}
                 onSubmit={onSubmitLogin}
               >
                 {({ isSubmitting }) => (
@@ -230,13 +233,13 @@ function Login() {
                       fullWidth
                       helperText={<ErrorMessage name="password" />}
                     />
-                    <Button  style={{marginBottom:'1em'}} variant="outlined" disabled={isSubmitting} type="submit">
+                    <Button style={{marginBottom:'1em'}} variant="outlined" disabled={isSubmitting} type="submit">
                       Sign Up
                     </Button>
                   </Form>
                 )}
               </Formik>
-              <p  style={{marginBottom:'1em'}}>
+              <p style={{marginBottom:'1em'}}>
                 Already have an Account ?<span className='hyper' onClick={() => setShowLogin(true)}>Log In</span>
               </p>
               {signInStatus ? (
