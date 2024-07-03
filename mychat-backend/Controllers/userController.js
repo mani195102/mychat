@@ -119,8 +119,6 @@ const resetPasswordcontroller = expressAsyncHandler(async (req, res) => {
 
 const registerController = expressAsyncHandler(async (req, res) => {
     const { name, email, password, phone, about } = req.body;
-    console.log(password);
-
     if (!name || !email || !password || !phone) {
         res.status(400).send({ message: "All necessary input fields have not been filled" });
         return;
@@ -145,7 +143,6 @@ const registerController = expressAsyncHandler(async (req, res) => {
     }
 
     const user = await UserModel.create({ name, email, password, phone, about, profileImage });
-    console.log(user)
     if (user) {
         res.status(201).json({
             _id: user._id,
