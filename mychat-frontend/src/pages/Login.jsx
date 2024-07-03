@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import "./animation.css";
 import logo from '../assets/chatapp.svg';
-import { Backdrop, Button, CircularProgress, TextField } from '@mui/material';
+import { Backdrop, Button, CircularProgress, TextField } from '@mui/material'; // Import Link as RouterLink
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link as RouterLink } from 'react-router-dom';
 import Toaster from "../components/Toaster";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -150,7 +150,9 @@ function Login() {
                   </Form>
                 )}
               </Formik>
-              <p>
+              <p style={{marginBottom:'1em',marginTop:'1em'}}>
+                <RouterLink to="/forgetpassword" className='hyper'>Forgot Password?</RouterLink>
+                {" | "}
                 Don't have an Account ?{" "}
                 <span className='hyper' onClick={() => setShowLogin(false)}>Sign Up</span>
               </p>
@@ -213,7 +215,7 @@ function Login() {
                       helperText={<ErrorMessage name="about" />}
                     />
                     <input
-                     style={{marginBottom:'1em'}}
+                      style={{marginBottom:'1em'}}
                       type="file"
                       onChange={(event) => {
                         setFieldValue("profileImage", event.currentTarget.files[0]);
@@ -222,7 +224,7 @@ function Login() {
                     />
                     <ErrorMessage name="profileImage" component="div" className="error" />
                     <Field
-                    style={{marginBottom:'1em'}}
+                      style={{marginBottom:'1em'}}
                       as={TextField}
                       type="password"
                       name="password"
@@ -239,7 +241,7 @@ function Login() {
                   </Form>
                 )}
               </Formik>
-              <p style={{marginBottom:'1em'}}>
+              <p style={{marginBottom:'1em',marginTop:'1em'}}>
                 Already have an Account ?<span className='hyper' onClick={() => setShowLogin(true)}>Log In</span>
               </p>
               {signInStatus ? (

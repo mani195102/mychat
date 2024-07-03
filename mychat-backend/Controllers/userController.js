@@ -1,14 +1,30 @@
 const expressAsyncHandler = require("express-async-handler");
 const UserModel = require("../models/userModel");
+//const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const generateToken = require("../config/generateToken");
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 const cloudinary = require("../config/cloudinary"); // Import Cloudinary configuration
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
 
 const loginController = expressAsyncHandler(async (req, res) => {
     const { name, password } = req.body;
     const user = await UserModel.findOne({ name });
     if (user && (await user.matchPassword(password))) {
         const isAdmin = user.isAdmin;
+        const token = generateToken(user._id, isAdmin);
+        console.log(token);
         const response = {
             _id: user._id,
             name: user.name,
@@ -17,7 +33,7 @@ const loginController = expressAsyncHandler(async (req, res) => {
             about: user.about,
             profileImage: user.profileImage,
             isAdmin: user.isAdmin,
-            token: generateToken(user._id, isAdmin),
+            token: token,
         };
         res.status(200).json(response);
     } else {
@@ -25,9 +41,85 @@ const loginController = expressAsyncHandler(async (req, res) => {
         throw new Error("Invalid Username or Password");
     }
 });
+const forgetPasswordController = expressAsyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate token for password reset
+        const hexToken = generateToken(user._id, user.isAdmin);
+        const token = Buffer.from(hexToken).toString('hex');
+        user.resetToken = hexToken; // Store token in user document
+        user. resetTokenExpiry = Date.now() + 3600000; // Token expiration (1 hour)
+
+        await user.save();
+
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL,
+            subject: 'Password Reset',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+                   Please click on the following link, or paste this into your browser to complete the process:\n\n
+                   ${process.env.CLIENT_URL}/reset_password/${token}\n\n
+                   If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        };
+
+        transporter.sendMail(mailOptions, (err, response) => {
+            if (err) {
+                console.error('Error sending email:', err);
+                res.status(500).json({ message: 'Failed to send email' });
+            } else {
+                res.status(200).json({ message: 'Recovery email sent' });
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+const resetPasswordcontroller = expressAsyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    try {
+        // Decode the token from hex to its original string
+        const originalToken = Buffer.from(token, 'hex').toString();
+
+        // Find the user by reset token and check if the token has not expired
+        const user = await UserModel.findOne({ resetToken: originalToken, resetTokenExpiry: { $gt: Date.now() } });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        // Assign the new password to the user object
+        user.password = password;
+
+        // Clear the reset token and expiry
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+
+        // Save the user with the new password (password will be hashed by the pre-save middleware)
+        await user.save();
+
+        res.status(200).json({ message: 'Password has been reset' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
 
 const registerController = expressAsyncHandler(async (req, res) => {
     const { name, email, password, phone, about } = req.body;
+    console.log(password);
 
     if (!name || !email || !password || !phone) {
         res.status(400).send({ message: "All necessary input fields have not been filled" });
@@ -53,6 +145,7 @@ const registerController = expressAsyncHandler(async (req, res) => {
     }
 
     const user = await UserModel.create({ name, email, password, phone, about, profileImage });
+    console.log(user)
     if (user) {
         res.status(201).json({
             _id: user._id,
@@ -60,6 +153,7 @@ const registerController = expressAsyncHandler(async (req, res) => {
             email: user.email,
             phone: user.phone,
             about: user.about,
+            password:user.password,
             profileImage: user.profileImage,
             isAdmin: user.isAdmin,
             token: generateToken(user._id),
@@ -84,7 +178,6 @@ const fetchAllUsersController = expressAsyncHandler(async (req, res) => {
 
     try {
         const users = await UserModel.find({ ...keyword, _id: { $ne: req.user_id } });
-        console.log("Fetched Users:", users); // Log the fetched users
 
         if (users.length === 0) {
             return res.status(404).json({ message: "No users found" });
@@ -177,6 +270,8 @@ const editUserProfileController = expressAsyncHandler(async (req, res) => {
 
 module.exports = {
     loginController,
+    forgetPasswordController,
+    resetPasswordcontroller,
     registerController,
     fetchAllUsersController,
     deleteUserController,

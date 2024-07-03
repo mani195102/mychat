@@ -8,31 +8,30 @@ import Welcome from './components/Welcome';
 import CreateGroups from './components/CreateGroups';
 import Groups from './components/Groups';
 import Users from './components/Users';
-import Profile from './pages/Profile'
-import { useDispatch,useSelector } from 'react-redux';
- import SearchAndConversations from './components/SearchandConversations'
+import Profile from './pages/Profile';
+import ForgetPassword from './pages/ForgetPassword'; 
+import ResetPassword from './pages/ResetPassword'; 
+import SearchAndConversations from './components/SearchandConversations';
 
 function App() {
-  const dispatch = useDispatch();
   return (
     <div className="App">
-    <Routes>
-    <Route path='/' element={<Login />} />
-    <Route path='app' element={<MainContainer />}>
-     <Route path='profile/:id' element={<Profile />} />
-      <Route path='welcome' element={<Welcome />} />
-      <Route path='chat/:_id' element={<ChatArea />} />
-      <Route path='users' element={<Users />} />
-      <Route path='groups' element={<Groups />} />
-      <Route path='create-groups' element={<CreateGroups />} />
-      <Route path='conversations' element={<SearchAndConversations />} />
-
-      {/* <Route path='private-chat' element={<PrivateChat />} /> */}
-    </Route>
-  </Routes>
-
+      <Routes>
+        <Route path='/' element={<Login />} />
+        <Route path='/forgetpassword' element={<ForgetPassword />} /> {/* Route for ForgetPassword */}
+        <Route path='/reset_password/:token' element={<ResetPassword />} /> {/* Route for ResetPassword */}
+        <Route path='app' element={<MainContainer />}>
+          <Route path='profile/:id' element={<Profile />} />
+          <Route path='welcome' element={<Welcome />} />
+          <Route path='chat/:_id' element={<ChatArea />} />
+          <Route path='users' element={<Users />} />
+          <Route path='groups' element={<Groups />} />
+          <Route path='create-groups' element={<CreateGroups />} />
+          <Route path='conversations' element={<SearchAndConversations />} />
+        </Route>
+      </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

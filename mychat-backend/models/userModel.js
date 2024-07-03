@@ -10,6 +10,8 @@ const userModel = mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     about: { type: String },
     profileImage: { type: String },
+    resetToken: String,
+    resetTokenExpiry: Date,
 }, {
     timestamps: true,
 });
