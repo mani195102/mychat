@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import grouplogo from "../assets/chatgroup.svg";
 import { motion } from "framer-motion";
 import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
@@ -32,12 +32,38 @@ function CreateGroups() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]); // State to hold selected users
+  const [availableUsers, setAvailableUsers] = useState([]); // State to hold available users
 
   // Redirect to login if user not authenticated (consider useEffect for cleaner effect handling)
   if (!userData) {
     console.log("User not Authenticated");
     nav("/");
   }
+
+  useEffect(() => {
+    // Fetch available users
+    const fetchUsers = async () => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
+        };
+
+        const response = await axios.get(
+          "https://mychat-ia72.onrender.com/user/fetchUsers",
+          config
+        );
+
+        setAvailableUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        // Handle error fetching users
+      }
+    };
+
+    fetchUsers();
+  }, [userData]);
 
   const user = userData;
 
@@ -168,6 +194,7 @@ function CreateGroups() {
             <FormControl fullWidth>
               <InputLabel id="users-label">Select Users</InputLabel>
               <Select
+              className="select-user"
                 labelId="users-label"
                 id="users-select"
                 multiple
@@ -176,9 +203,11 @@ function CreateGroups() {
                 inputProps={{ "aria-label": "Select Users" }}
                 fullWidth
               >
-                <MenuItem value="647d94aea97e40a17278c7e5">User 1</MenuItem>
-                <MenuItem value="647d999e4c3dd7ca9a2e6543">User 2</MenuItem>
-                {/* Add more users as needed */}
+                {availableUsers.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </DialogContent>

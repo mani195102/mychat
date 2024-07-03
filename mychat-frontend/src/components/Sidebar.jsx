@@ -414,9 +414,6 @@ function Sidebar() {
             <ListItem button onClick={() => navigate("/app/create-groups")}>
               <ListItemText primary="Create Groups" />
             </ListItem>
-            <ListItem button onClick={() => navigate("/app/private-chat")}>
-              <ListItemText primary="Private Chat" />
-            </ListItem>
             <ListItem button onClick={() => dispatch(toggleTheme())}>
               <ListItemText primary="Toggle Theme" />
             </ListItem>

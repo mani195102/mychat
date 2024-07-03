@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IconButton } from "@mui/material";
+import { IconButton, Avatar } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import axios from "axios";
 import io from "socket.io-client";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 const ENDPOINT = "https://mychat-ia72.onrender.com/";
 
@@ -14,25 +14,23 @@ function SearchAndConversations() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeChatId, setActiveChatId] = useState(null);
   const [messageHighlights, setMessageHighlights] = useState({});
-  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userdata")) || null);
-  const navigate = useNavigate(); // Get navigate function from useNavigate
+  const [userData, setUserData] = useState(
+    JSON.parse(localStorage.getItem("userdata")) || null
+  );
+  const navigate = useNavigate();
 
-  // Effect to fetch conversations and initialize socket
   useEffect(() => {
-    // Check if userData exists and navigate if not
     if (!userData) {
-        navigate("/");
+      navigate("/");
       return;
     }
 
-    // Initialize socket connection
     const socket = io(ENDPOINT);
     socket.emit("setup", userData);
     socket.on("connected", () => {
       console.log("Socket connected");
     });
 
-    // Fetch conversations
     const config = {
       headers: {
         Authorization: `Bearer ${userData.token}`,
@@ -48,7 +46,6 @@ function SearchAndConversations() {
         console.error("Error fetching conversations:", error);
       });
 
-    // Handle socket events
     socket.on("message received", (newMessage) => {
       setConversations((prevConversations) => {
         const updatedConversations = prevConversations.map((conversation) => {
@@ -72,28 +69,21 @@ function SearchAndConversations() {
       }
     });
 
-    // Cleanup
     return () => {
       socket.off("message received");
       socket.disconnect();
     };
-  }, [userData, activeChatId]);
+  }, [userData, activeChatId, navigate]);
 
-  // Function to handle search
   const handleSearch = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
 
-  // Function to handle conversation click
   const handleConversationClick = (conversation) => {
-    // Update active chat id
     setActiveChatId(conversation._id);
-
-    // Navigate to chat area route
     navigate(`/app/chat/${conversation._id}&${getChatDisplayName(conversation)}`);
   };
 
-  // Function to get chat display name
   const getChatDisplayName = (conversation) => {
     if (conversation.isGroupChat) {
       return conversation.chatName;
@@ -105,7 +95,6 @@ function SearchAndConversations() {
     }
   };
 
-  // Render function
   return (
     <div className="se-conversation">
       <div className={`sb-search ${lightTheme ? "" : "dark"}`}>
@@ -140,13 +129,11 @@ function SearchAndConversations() {
               conversation.latestMessage?.content ||
               "No previous messages, click here to start a new chat";
 
-            // Truncate latest message content to 30 characters
             if (latestMessageContent.length > 30) {
               latestMessageContent =
                 latestMessageContent.substring(0, 30) + "...";
             }
 
-            // Determine styles based on active chat or new messages
             const isActive = conversation._id === activeChatId;
             const isHighlighted = messageHighlights[conversation._id];
             const messageStyle = isActive
@@ -163,9 +150,27 @@ function SearchAndConversations() {
                 }`}
                 onClick={() => handleConversationClick(conversation)}
               >
-                <p className={`con-icon ${lightTheme ? "" : "dark"}`}>
-                  {chatDisplayName[0]}
-                </p>
+                <div className={`con-icon ${lightTheme ? "" : "dark"}`}>
+                  {conversation.isGroupChat ? (
+                    conversation.groupImage ? (
+                      <Avatar
+                        src={conversation.groupImage}
+                        alt="Group Image"
+                        className={`profile-image icon ${lightTheme ? "" : "dark"}`}
+                      />
+                    ) : (
+                      <Avatar className={`avatar-initials ${lightTheme ? "" : "dark"}`}>
+                        {chatDisplayName[0]}
+                      </Avatar>
+                    )
+                  ) : (
+                    <Avatar
+                      src={conversation.users.find((user) => user._id !== userData._id)?.profileImage}
+                      alt="User Profile"
+                      className={`profile-image icon ${lightTheme ? "" : "dark"}`}
+                    />
+                  )}
+                </div>
                 <div className="conversation-details">
                   <p className={`con-title ${lightTheme ? "" : "dark"}`}>
                     {chatDisplayName}

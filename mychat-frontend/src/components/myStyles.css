@@ -13,6 +13,9 @@
     border-radius:5px;
     display: flex;
 }
+#users-label,.select-user{
+    margin:25px 0;
+}
 body button:focus, body button:focus-visible {
     outline:none;
 }
@@ -321,8 +324,8 @@ img.group-logo {
 
 /* login */
 .login-container{
-    width:80vw;
-    height:80vh;
+    width:83vw;
+    height:83vh;
     display: flex;
     border-radius:5px;
     background-color: #e8e8e8;
@@ -443,6 +446,16 @@ img.message-image {
   
 @media only screen and (max-width:992px) {
 
+    .grouping {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    img.group-logo{
+        height:25vw;
+    }
     .sidebar-container {
         flex: 0;
     }
@@ -456,6 +469,7 @@ img.message-image {
     }
     .main-container{
      flex-direction: column;
+     height:93vh;
     }
     .chatArea-container{
         flex:1;
@@ -475,7 +489,7 @@ img.message-image {
     }
     .login-container {
         width: 80vw;
-        height: 70vh;
+        height:82vh;
     }
     .login-box h3 {
         font-size: 1.7rem;
@@ -503,22 +517,47 @@ img.message-image {
     .login-box h3 {
         font-size: 1.6rem;
     }
+    .grouping h2{
+        font-size:1.8rem;
+    }
+    img.group-logo {
+        height: 45vw;
+    }
     .login-container {
         width: 95%;
         height:84vh;
         flex-direction: column;
     }
-    
+    .search-box{
+        font-size:0.9rem;
+    }
+    .createGroups-container{
+        width:90%;
+    }
+    .viewtype{
+        font-size: 1rem !important; 
+    }
+    .pro-text{
+        font-size: 1.2rem !important;
+    }
+    .profile-view {
+        width: 100%;
+    }
 }
 @media only screen and (max-width:480px) {
+    .other-icons img{
+        width:30px;
+        height:30px;
+    }
     img.welcome-logo {
         max-width: 90%;
     }
     .image-container {
         flex: 1;
+        display: none;
     }
     .login-container{
-        height:92vh;
+        height:100%;
     }
     .other-icons{
         justify-content:end;
@@ -530,7 +569,7 @@ img.message-image {
         object-position: top;
     }
     .login-box {
-        padding: 20px 0;
+        padding: 20px 12px;
     }
     .main-container{
         width:95%;
