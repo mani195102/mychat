@@ -42,7 +42,7 @@ function ChatArea() {
     }
 
     socket.on("message received", (newMessage) => {
-      if (newMessage.chat._id === chat_id) { // Ensure message is for this chat area
+      if (newMessage.chat._id === chat_id) {
         setAllMessages((prev) => [...prev, newMessage]);
       }
     });
@@ -180,21 +180,17 @@ function ChatArea() {
   };
 
   const getProfileImage = () => {
-    // Check if the chat is a group chat based on chat_id or some other indicator
-    const isGroupChat = chat_user.includes("group"); // Update this condition based on your actual logic
+    const isGroupChat = chat_user.includes("group");
     const chatUserImage = sessionStorage.getItem('chatUserImage');
     const groupImage = sessionStorage.getItem('groupImage');
     
     if (isGroupChat) {
-      // Mock group image logic
-      // Replace with actual group image logic if needed
       return (
         <div className="profile-image">
           <img src={groupImage} alt="Group Profile" className="profile-img" />
         </div>
       );
     } else {
-      // Assume the user profile image is stored in sessionStorage chatUserImage
       return chatUserImage ? (
         <div className="profile-image">
           <img src={chatUserImage} alt="User Profile" className="profile-img" />
@@ -229,32 +225,29 @@ function ChatArea() {
       </div>
       <div className={"messages-container" + (lightTheme ? "" : " dark")}>
         <AnimatePresence>
-          {allMessages
-            .slice(0)
-            .reverse()
-            .map((message) => {
-              const sender = message.sender;
-              const self_id = userData._id;
-              const key = message._id;
-  
-              return (
-                <motion.div
-                  key={key}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  {sender._id === self_id ? (
-                    <MessageSelf props={message} />
-                  ) : (
-                    <MessageOthers props={message} />
-                  )}
-                </motion.div>
-              );
-            })}
+          {allMessages.map((message) => {
+            const sender = message.sender;
+            const self_id = userData._id;
+            const key = message._id;
+
+            return (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+              >
+                {sender._id === self_id ? (
+                  <MessageSelf props={message} />
+                ) : (
+                  <MessageOthers props={message} />
+                )}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
+        <div ref={messagesEndRef} />
       </div>
-      <div ref={messagesEndRef} className="BOTTOM" />
       <motion.div
         className={"text-input-area" + (lightTheme ? "" : " dark")}
         initial={{ opacity: 0, y: 20 }}
