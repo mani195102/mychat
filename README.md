@@ -47,7 +47,7 @@ Copy code
 npm start
 Open your browser:
 
-Visit http://localhost:5000 to view the application.
+Visit https://zen-mychat.netlify.app to view the application.
 
 Usage
 Authentication
