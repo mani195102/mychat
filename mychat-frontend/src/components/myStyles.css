@@ -546,7 +546,7 @@ img.message-image {
 }
 @media only screen and (max-width:480px) {
     video.message-video {
-        width: 265px;
+        width: 265px !important;
     }
     .other-icons img{
         width:30px;
