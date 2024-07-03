@@ -47,7 +47,7 @@ function Login() {
           "Content-type": "application/json",
         },
       };
-      const response = await axios.post("http://localhost:5000/user/login", values, config);
+      const response = await axios.post("https://mychat-ia72.onrender.com/user/login", values, config);
       setLogInStatus({ msg: "Success", key: Math.random() });
       localStorage.setItem("userdata", JSON.stringify(response.data)); // Store user data
       navigate("/app/welcome");
@@ -75,7 +75,7 @@ function Login() {
           "Content-type": "multipart/form-data",
         },
       };
-      const response = await axios.post("http://localhost:5000/user/register", formData, config);
+      const response = await axios.post("https://mychat-ia72.onrender.com/user/register", formData, config);
       setSignInStatus({ msg: "Success", key: Math.random() });
       localStorage.setItem("userdata", JSON.stringify(response.data)); // Store user data
       navigate("/app/welcome");

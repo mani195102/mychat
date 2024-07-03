@@ -81,7 +81,7 @@ function CreateGroups() {
 
     try {
       await axios.post(
-        "http://localhost:5000/chat/createGroupWithAdminPermissions",
+        "https://mychat-ia72.onrender.com/chat/createGroupWithAdminPermissions",
         formData,
         config
       );
@@ -119,7 +119,7 @@ function CreateGroups() {
 
     try {
       await axios.post(
-        "http://localhost:5000/chat/createGroup",
+        "https://mychat-ia72.onrender.com/chat/createGroup",
         formData,
         config
       );

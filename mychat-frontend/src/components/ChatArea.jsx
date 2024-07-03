@@ -13,7 +13,7 @@ import { myContext } from "./MainContainer";
 import io from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ENDPOINT = "http://localhost:5000/";
+const ENDPOINT = "https://mychat-ia72.onrender.com/";
 let socket;
 
 function ChatArea() {
@@ -60,7 +60,7 @@ function ChatArea() {
         },
       };
       try {
-        const { data } = await axios.get(`http://localhost:5000/message/${chat_id}`, config);
+        const { data } = await axios.get(`https://mychat-ia72.onrender.com/message/${chat_id}`, config);
         setAllMessages(data);
         setLoaded(true);
         socket.emit("join chat", chat_id);
@@ -96,7 +96,7 @@ function ChatArea() {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:5000/message/", formData, config);
+      const { data } = await axios.post("https://mychat-ia72.onrender.com/message/", formData, config);
       socket.emit("new message", data);
       setMessageContent("");
       setFile(null);
@@ -114,11 +114,11 @@ function ChatArea() {
         },
       };
 
-      const deleteEndpoint = `http://localhost:5000/chat/deleteGroup/${chat_id}`;
+      const deleteEndpoint = `https://mychat-ia72.onrender.com/chat/deleteGroup/${chat_id}`;
 
       await axios.delete(deleteEndpoint, config);
 
-      const response = await axios.get("http://localhost:5000/chat/", config);
+      const response = await axios.get("https://mychat-ia72.onrender.com/chat/", config);
       const updatedChats = response.data;
 
       if (updatedChats.length > 0) {

@@ -49,7 +49,7 @@ function Groups() {
     };
 
     axios
-      .get("http://localhost:5000/chat/fetchGroups", config)
+      .get("https://mychat-ia72.onrender.com/chat/fetchGroups", config)
       .then((response) => {
         console.log("Group Data from API ", response.data);
         setGroups(response.data);
@@ -69,7 +69,7 @@ function Groups() {
     };
 
     axios.post(
-      "http://localhost:5000/chat/addSelfToGroup",
+      "https://mychat-ia72.onrender.com/chat/addSelfToGroup",
       {
         userId: userData._id,
         chatId: group._id,
@@ -90,7 +90,7 @@ function Groups() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/chat/deleteGroup/${groupId}`,
+        `https://mychat-ia72.onrender.com/chat/deleteGroup/${groupId}`,
         config
       );
 
@@ -134,7 +134,7 @@ function Groups() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/chat/createGroupWithAdminPermissions",
+        "https://mychat-ia72.onrender.com/chat/createGroupWithAdminPermissions",
         formData,
         config
       );
@@ -168,7 +168,7 @@ function Groups() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/chat/createGroup",
+        "https://mychat-ia72.onrender.com/chat/createGroup",
         formData,
         config
       );

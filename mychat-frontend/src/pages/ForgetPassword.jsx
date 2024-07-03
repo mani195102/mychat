@@ -30,7 +30,7 @@ function ForgetPassword() {
           "Content-type": "application/json",
         },
       };
-      await axios.post("http://localhost:5000/user/forgotpassword", values, config);
+      await axios.post("https://mychat-ia72.onrender.com/user/forgotpassword", values, config);
       setResetStatus({ msg: "Password reset instructions sent to your email", key: Math.random() });
     } catch (error) {
       setResetStatus({

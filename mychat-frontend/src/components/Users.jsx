@@ -38,7 +38,7 @@ function Users() {
           Authorization: `Bearer ${userData.token}`,
         },
       };
-      const response = await axios.get("http://localhost:5000/user/fetchUsers", config);
+      const response = await axios.get("https://mychat-ia72.onrender.com/user/fetchUsers", config);
       console.log("Users data refreshed");
       setUsers(response.data);
     } catch (error) {
@@ -55,7 +55,7 @@ function Users() {
         },
       };
       await axios.post(
-        "http://localhost:5000/chat/",
+        "https://mychat-ia72.onrender.com/chat/",
         {
           userId: user._id,
         },
@@ -88,7 +88,7 @@ function Users() {
           Authorization: `Bearer ${userData.token}`,
         },
       };
-      const response = await axios.get("http://localhost:5000/user/fetchUsers", config);
+      const response = await axios.get("https://mychat-ia72.onrender.com/user/fetchUsers", config);
       const filteredUsers = response.data.filter(user =>
         user.name.toLowerCase().includes(searchTerm)
       );

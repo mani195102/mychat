@@ -6,7 +6,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
-const ENDPOINT = "http://localhost:5000/";
+const ENDPOINT = "https://mychat-ia72.onrender.com/";
 
 function SearchAndConversations() {
   const lightTheme = useSelector((state) => state.themeKey);
@@ -40,7 +40,7 @@ function SearchAndConversations() {
     };
 
     axios
-      .get("http://localhost:5000/chat/", config)
+      .get("https://mychat-ia72.onrender.com/chat/", config)
       .then((response) => {
         setConversations(response.data);
       })

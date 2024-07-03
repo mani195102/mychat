@@ -53,7 +53,7 @@ const Profile = () => {
           throw new Error('No token found');
         }
 
-        const { data } = await axios.get('http://localhost:5000/user/profile', {
+        const { data } = await axios.get('https://mychat-ia72.onrender.com/user/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -119,7 +119,7 @@ const Profile = () => {
         },
       };
 
-      const response = await axios.put(`http://localhost:5000/user/editProfile/${profileData._id}`, formData, config);
+      const response = await axios.put(`https://mychat-ia72.onrender.com/user/editProfile/${profileData._id}`, formData, config);
       setProfileData(response.data);
       localStorage.setItem('userdata', JSON.stringify({ ...userData, ...response.data }));
       setLoading(false);

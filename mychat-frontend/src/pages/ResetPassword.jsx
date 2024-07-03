@@ -31,7 +31,7 @@ function ResetPassword() {
           "Content-type": "application/json",
         },
       };
-      await axios.put(`http://localhost:5000/user/reset_password/${token}`, values,config);
+      await axios.put(`https://mychat-ia72.onrender.com/user/reset_password/${token}`, values,config);
       setResetStatus({ msg: "Password reset successfully", key: Math.random() });
       setTimeout(() => {
         navigate("/");

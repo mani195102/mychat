@@ -30,7 +30,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { myContext } from "./MainContainer";
 import io from "socket.io-client";
 
-const ENDPOINT = "http://localhost:5000/";
+const ENDPOINT = "https://mychat-ia72.onrender.com/";
 let socket;
 
 function Sidebar() {
@@ -75,7 +75,7 @@ function Sidebar() {
     };
 
     axios
-      .get("http://localhost:5000/chat/", config)
+      .get("https://mychat-ia72.onrender.com/chat/", config)
       .then((response) => {
         setConversations(response.data);
       })
